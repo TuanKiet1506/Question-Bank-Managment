@@ -1,0 +1,27 @@
+{
+  "subjects": [
+    { "id": "S01", "ten_mon": "Lập trình Python", "mo_ta": "Nhập môn Python" }
+  ],
+  "topics": [
+    { "id": "T01", "subject_id": "S01", "ten_chu_de": "Biến và kiểu dữ liệu" },
+    { "id": "T02", "subject_id": "S01", "ten_chu_de": "Vòng lặp" }
+  ],
+  "questions": [
+    {
+      "id": "Q01",
+      "topic_id": "T01",
+      "noi_dung": "Kiểu dữ liệu nào dùng để lưu số nguyên trong Python?",
+      "muc_do": "De",
+      "loai_cau": "single",
+      "diem": 1,
+      "options": [
+        { "id": "O1", "noi_dung": "int", "is_dung": true },
+        { "id": "O2", "noi_dung": "str", "is_dung": false },
+        { "id": "O3", "noi_dung": "float", "is_dung": false },
+        { "id": "O4", "noi_dung": "bool", "is_dung": false }
+      ]
+    }
+  ],
+  "exams": [],
+  "results": []
+}

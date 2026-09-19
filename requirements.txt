@@ -1,0 +1,16 @@
+# =============================================================
+# Đề tài 7 - Hệ thống quản lý ngân hàng câu hỏi
+# Yêu cầu thư viện Python
+# =============================================================
+# Lưu ý: tkinter, json, csv, random là thư viện chuẩn -> KHÔNG cần cài.
+#
+# Các thư viện dưới đây là TÙY CHỌN (chỉ cài khi dùng tới):
+
+# Xuất đề/đáp án ra file DOCX (nghiệp vụ nâng cao)
+python-docx>=1.1.0
+
+# Xuất đề ra PDF (tùy chọn)
+# reportlab>=4.0.0
+
+# Kiểm thử tự động (tùy chọn)
+# pytest>=8.0.0
