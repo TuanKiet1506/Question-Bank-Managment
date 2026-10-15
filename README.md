@@ -58,9 +58,9 @@ De Tai So 7/
 
 ## 6. Nhóm thực hiện
 
-| Thành viên | Nhiệm vụ |
-|-----------|----------|
-| TV1 | Model + CRUD + lưu JSON/CSV |
-| TV2 | Giao diện Treeview + Text + QuestionEditor |
-| TV3 | Tạo đề (sample + seed), trộn, xuất file |
-| TV4 | Chấm điểm, thống kê, biểu đồ Canvas, báo cáo/kiểm thử |
+| Thành viên | Nhiệm vụ                                              |
+| ---------- | ----------------------------------------------------- |
+| TV1        | Model + CRUD + lưu JSON/CSV                           |
+| TV2        | Giao diện Treeview + Text + QuestionEditor            |
+| TV3        | Tạo đề (sample + seed), trộn, xuất file               |
+| TV4        | Chấm điểm, thống kê, biểu đồ Canvas, báo cáo/kiểm thử |
