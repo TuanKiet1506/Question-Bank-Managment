@@ -1,0 +1,40 @@
+{
+  "subjects": [
+    {
+      "id": "S01",
+      "ten_mon": "Lập trình Python",
+      "mo_ta": "Kiến thức cơ bản về Python"
+    }
+  ],
+  "topics": [
+    {
+      "id": "T01",
+      "subject_id": "S01",
+      "ten_chu_de": "Biến và kiểu dữ liệu"
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q01",
+      "topic_id": "T01",
+      "noi_dung": "Kiểu dữ liệu số nguyên trong Python là gì?",
+      "muc_do": "De",
+      "loai_cau": "single",
+      "diem": 1.0,
+      "options": [
+        {
+          "id": "O1",
+          "noi_dung": "int",
+          "is_dung": true
+        },
+        {
+          "id": "O2",
+          "noi_dung": "str",
+          "is_dung": false
+        }
+      ]
+    }
+  ],
+  "exams": [],
+  "results": []
+}
