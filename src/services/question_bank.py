@@ -7,8 +7,6 @@ Created on Wed Oct 14 20:35:01 2026
 
 from math import isfinite
 from numbers import Real
-from pathlib import Path
-from src.utils.storage import load
 try:
     from src.models.entities import Subject, Topic, Question, Option
 except ModuleNotFoundError:
@@ -298,12 +296,3 @@ class QuestionBank:
         for cau in tat_ca:
             loi.extend(self._loi_cau_hoi(cau, bo_qua_id=cau.id))
         return loi
-
-
-
-# Trỏ chính xác đến file JSON nằm trong thư mục data ở gốc dự án
-duong_dan = Path("data/TestFileJSON.JSON")
-
-# Tiến hành tải ngân hàng câu hỏi
-bank = load(duong_dan)
-print("Tải dữ liệu thành công!")

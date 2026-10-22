@@ -2,16 +2,13 @@
 """
 Tiện ích đọc/ghi dữ liệu.
 
-Dự kiến chức năng:
-    - Đọc/ghi file JSON (ngân hàng câu hỏi, đề, kết quả)
-    - Import/Export CSV
-    - Đường dẫn thư mục data/, exports/
-
-TODO: cài đặt các hàm load/save.
+Chức năng:
+    - load(duong_dan): đọc file JSON -> dựng lại cây đối tượng QuestionBank
+    - save(bank, duong_dan): ghi cây đối tượng QuestionBank ra file JSON
 """
 import json
 from pathlib import Path
-from src.utils.storage import load
+
 # Import các lớp nền tảng từ entities và question_bank
 try:
     from src.models.entities import Subject, Topic, tao_cau_hoi_tu_dict
@@ -97,9 +94,10 @@ def save(bank, duong_dan):
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-# Trỏ chính xác đến file JSON nằm trong thư mục data ở gốc dự án
-duong_dan = Path("data/TestFileJSON.JSON")
 
-# Tiến hành tải ngân hàng câu hỏi
-bank = load(duong_dan)
-print("Tải dữ liệu thành công!")
+if __name__ == "__main__":
+    # Chạy thử nhanh: đọc dữ liệu mẫu rồi báo số liệu đã nạp.
+    duong_dan = Path("data/samples/question_bank_sample.json")
+    bank = load(duong_dan)
+    so_cau = sum(len(cd.cau_hoi) for mon in bank.subjects for cd in mon.chu_de)
+    print(f"Tải dữ liệu thành công: {len(bank.subjects)} môn, {so_cau} câu hỏi.")
