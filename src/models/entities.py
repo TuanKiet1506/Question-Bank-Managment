@@ -312,3 +312,51 @@ class Subject:
 
     def __repr__(self):
         return f"Subject {self.id}: {self.ten_mon} ({len(self.chu_de)} chủ đề)"
+
+
+# =============================================================
+# 6) EXAM - Đề thi được sinh ra từ ngân hàng câu hỏi
+# =============================================================
+class Exam:
+    """Một đề thi sinh ra từ QuestionBank theo một ma trận mức độ.
+
+    Phục vụ phần nghiệp vụ tạo đề (services/exam_generator.py).
+
+    Thuộc tính:
+        id            : mã đề (vd "E01")
+        ten_de        : tên đề thi
+        seed          : seed trộn câu/phương án (int hoặc None) -> tái lập được
+        matrix        : ma trận yêu cầu, danh sách spec dạng
+                        {"muc_do":.., "so_cau":.., "subject_id":.., "topic_id":..}
+        danh_sach_cau : danh sách id câu hỏi theo đúng thứ tự trong đề
+    """
+
+    def __init__(self, id, ten_de="Đề kiểm tra", seed=None, matrix=None, danh_sach_cau=None):
+        self.id = id
+        self.ten_de = ten_de
+        self.seed = seed
+        self.matrix = matrix if matrix is not None else []
+        self.danh_sach_cau = danh_sach_cau if danh_sach_cau is not None else []
+
+    def to_dict(self):
+        """Chuyển object -> dict để lưu JSON (đủ để tái lập đề)."""
+        return {
+            "id": self.id,
+            "ten_de": self.ten_de,
+            "seed": self.seed,
+            "matrix": self.matrix,
+            "danh_sach_cau": list(self.danh_sach_cau),
+        }
+
+    @staticmethod
+    def from_dict(data):
+        return Exam(
+            id=data["id"],
+            ten_de=data.get("ten_de", "Đề kiểm tra"),
+            seed=data.get("seed"),
+            matrix=data.get("matrix", []),
+            danh_sach_cau=data.get("danh_sach_cau", []),
+        )
+
+    def __repr__(self):
+        return f"Exam {self.id}: {self.ten_de} ({len(self.danh_sach_cau)} câu, seed={self.seed})"
