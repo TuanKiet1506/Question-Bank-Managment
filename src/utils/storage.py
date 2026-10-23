@@ -21,20 +21,37 @@ except ModuleNotFoundError:
 def load(duong_dan):
     """
     Đọc dữ liệu từ file JSON và tái tạo lại toàn bộ cấu trúc cây đối tượng QuestionBank.
-    
+
+    An toàn với các tình huống hỏng dữ liệu (không làm dừng ứng dụng):
+        - File bị xóa hoặc rỗng  -> tự tạo lại file cấu trúc mặc định, trả về ngân hàng rỗng.
+        - File sai cú pháp JSON  -> GIỮ NGUYÊN file (để khôi phục), trả về ngân hàng rỗng.
+
     Tham số:
         duong_dan (str hoặc Path): Đường dẫn tới file JSON nguồn.
-        
+
     Trả về:
         QuestionBank: Đối tượng quản lý toàn bộ ngân hàng câu hỏi sau khi dựng cây.
     """
     path = Path(duong_dan)
-    if not path.exists():
-        raise FileNotFoundError(f"Không tìm thấy file JSON tại đường dẫn: {duong_dan}")
-        
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        
+
+    noi_dung = None
+    if path.exists():
+        try:
+            noi_dung = path.read_text(encoding='utf-8').strip()
+        except OSError:
+            noi_dung = None
+
+    # File bị xóa hoặc rỗng -> tạo lại cấu trúc mặc định rồi trả về ngân hàng rỗng.
+    if not noi_dung:
+        save(QuestionBank(), path)
+        return QuestionBank()
+
+    # File có nội dung nhưng sai cú pháp JSON -> không ghi đè, trả về ngân hàng rỗng.
+    try:
+        data = json.loads(noi_dung)
+    except json.JSONDecodeError:
+        return QuestionBank()
+
     bank = QuestionBank()
     
     # 1. Khởi tạo và thêm các Môn học (Subjects) vào ngân hàng

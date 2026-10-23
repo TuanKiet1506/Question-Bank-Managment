@@ -5,13 +5,23 @@ Created on Wed Oct 14 20:35:01 2026
 @author: nguyenlechibao
 """
 
+import re
 from math import isfinite
 from numbers import Real
 try:
     from src.models.entities import Subject, Topic, Question, Option
 except ModuleNotFoundError:
     from models.entities import Subject, Topic, Question, Option
-    
+
+# Bieu thuc chinh quy (regex) kiem tra dinh dang ma dinh danh.
+#   Mon  : S + so  (vd S01)      Chu de    : T + so (vd T01)
+#   Cau  : Q + so  (vd Q01)      Phuong an : O + so (vd O1)
+RE_MA_MON = re.compile(r"^S\d+$")
+RE_MA_CHU_DE = re.compile(r"^T\d+$")
+RE_MA_CAU_HOI = re.compile(r"^Q\d+$")
+RE_MA_PHUONG_AN = re.compile(r"^O\d+$")
+
+
 class QuestionBank:
     """Lop tong quan, quan ly danh sach Subject va cac thao tac nghiep vu."""
 
@@ -19,11 +29,18 @@ class QuestionBank:
     CAC_LOAI_CAU_HOI = {"single", "multiple", "fill"}
     def __init__(self):
         self.subjects = []
-    
+
     @staticmethod
     def _kiem_tra_chuoi_bat_buoc(gia_tri, ten_truong):
         if not isinstance(gia_tri, str) or not gia_tri.strip():
             raise ValueError(f"{ten_truong} khong duoc de trong.")
+
+    @staticmethod
+    def _kiem_tra_dinh_dang_ma(gia_tri, mau, ten_truong, vi_du):
+        """Kiem tra ma dinh danh khop regex; nem ValueError neu sai dinh dang."""
+        if not mau.match(gia_tri):
+            raise ValueError(
+                f"{ten_truong} '{gia_tri}' sai dinh dang (yeu cau {vi_du}).")
 
     def _loi_cau_hoi(self, cau_hoi, bo_qua_id=None):
         """Kiem tra mot cau hoi va tra ve danh sach loi, khong lam thay doi du lieu."""
@@ -35,6 +52,8 @@ class QuestionBank:
         if not isinstance(cau_hoi.id, str) or not cau_hoi.id.strip():
             loi.append("Ma cau hoi khong duoc de trong.")
         else:
+            if not RE_MA_CAU_HOI.match(cau_hoi.id):
+                loi.append(f"Cau hoi {cau_hoi.id}: ma cau hoi sai dinh dang (yeu cau Q + so, vd Q01).")
             for cau_khac in self._tat_ca_cau_hoi():
                 if cau_khac.id == cau_hoi.id and cau_khac.id != bo_qua_id:
                     loi.append(f"Ma cau hoi '{cau_hoi.id}' da ton tai.")
@@ -77,6 +96,9 @@ class QuestionBank:
                     options_hop_le = False
                 else:
                     cac_ma_phuong_an.append(phuong_an.id)
+                    if not RE_MA_PHUONG_AN.match(phuong_an.id):
+                        loi.append(f"Cau hoi {cau_hoi.id}: ma phuong an '{phuong_an.id}' sai dinh dang (yeu cau O + so, vd O1).")
+                        options_hop_le = False
                 if not isinstance(phuong_an.noi_dung, str) or not phuong_an.noi_dung.strip():
                     loi.append(f"Cau hoi {cau_hoi.id}: noi dung phuong an thu {vi_tri} khong duoc de trong.")
                     options_hop_le = False
@@ -104,6 +126,7 @@ class QuestionBank:
         if not isinstance(mon, Subject):
             raise TypeError("Du lieu phai la doi tuong Subject.")
         self._kiem_tra_chuoi_bat_buoc(mon.id, "Ma mon hoc")
+        self._kiem_tra_dinh_dang_ma(mon.id, RE_MA_MON, "Ma mon hoc", "S + so (vd S01)")
         self._kiem_tra_chuoi_bat_buoc(mon.ten_mon, "Ten mon hoc")
         if self.tim_mon(mon.id) is not None:
             raise ValueError(f"Ma mon '{mon.id}' da ton tai.")
@@ -136,6 +159,7 @@ class QuestionBank:
         if not isinstance(chu_de, Topic):
             raise TypeError("Du lieu phai la doi tuong Topic.")
         self._kiem_tra_chuoi_bat_buoc(chu_de.id, "Ma chu de")
+        self._kiem_tra_dinh_dang_ma(chu_de.id, RE_MA_CHU_DE, "Ma chu de", "T + so (vd T01)")
         self._kiem_tra_chuoi_bat_buoc(chu_de.ten_chu_de, "Ten chu de")
         if self.tim_chu_de(chu_de.id) is not None:
             raise ValueError(f"Ma chu de '{chu_de.id}' da ton tai.")
