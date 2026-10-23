@@ -112,6 +112,119 @@ def save(bank, duong_dan):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+# =============================================================
+# NHẬP / XUẤT NGÂN HÀNG CÂU HỎI TỪ FILE TXT (theo format quy ước)
+# -------------------------------------------------------------
+# Mỗi câu cách nhau bằng 1 dòng trống. Cấu trúc một câu:
+#   [Q01] T01 | De | 1 [| loai]      <- tiêu đề: mã | chủ đề | mức độ | điểm | loại
+#   Nội dung câu hỏi                 <- dòng ngay sau tiêu đề
+#   * phương án đúng                 <- '*' đúng, '-' sai (single/multiple)
+#   - phương án sai
+#   = đáp án                         <- '=' cho câu điền khuyết (fill)
+# Loại mặc định là 'single' nếu bỏ trống. Mã phương án (O1, O2...) tự sinh.
+# =============================================================
+
+def _parse_block_txt(lines):
+    """Phân tích một khối câu hỏi TXT -> dict; ném ValueError nếu sai format."""
+    dong = [l for l in lines if l.strip() != ""]
+    if not dong:
+        raise ValueError("khối câu hỏi rỗng")
+
+    header = dong[0].strip()
+    if not (header.startswith("[") and "]" in header):
+        raise ValueError("thiếu dòng tiêu đề dạng [mã] chủ_đề | mức_độ | điểm")
+    ma = header[1:header.index("]")].strip()
+    phan = [p.strip() for p in header[header.index("]") + 1:].split("|")]
+    if len(phan) < 3 or not phan[0]:
+        raise ValueError("tiêu đề thiếu thông tin (cần: chủ_đề | mức_độ | điểm)")
+    topic_id, muc_do, diem_str = phan[0], phan[1], phan[2]
+    loai = phan[3] if len(phan) >= 4 and phan[3] else "single"
+    try:
+        diem = float(diem_str)
+    except ValueError:
+        raise ValueError(f"điểm '{diem_str}' không phải số")
+
+    if len(dong) < 2:
+        raise ValueError("thiếu nội dung câu hỏi")
+    noi_dung = dong[1].strip()
+
+    options = []
+    for stt, l in enumerate(dong[2:], start=1):
+        s = l.strip()
+        dau, text = s[0], s[1:].strip()
+        if loai == "fill":
+            if dau != "=":
+                raise ValueError("câu fill chỉ dùng dấu '=' cho đáp án")
+            options.append({"id": f"O{stt}", "noi_dung": text, "is_dung": True})
+        else:
+            if dau == "*":
+                options.append({"id": f"O{stt}", "noi_dung": text, "is_dung": True})
+            elif dau == "-":
+                options.append({"id": f"O{stt}", "noi_dung": text, "is_dung": False})
+            else:
+                raise ValueError(f"phương án phải bắt đầu bằng '*' hoặc '-': {s[:20]}")
+
+    return {
+        "id": ma, "topic_id": topic_id, "noi_dung": noi_dung,
+        "muc_do": muc_do, "loai_cau": loai, "diem": diem, "options": options,
+    }
+
+
+def import_txt(duong_dan, bank):
+    """Đọc file TXT theo format quy ước và thêm câu hỏi vào ``bank``.
+
+    Trả về: (so_cau_them, danh_sach_loi). Câu nào lỗi sẽ bị bỏ qua và ghi vào
+    danh_sach_loi kèm số dòng, các câu hợp lệ vẫn được thêm bình thường.
+    """
+    dong = Path(duong_dan).read_text(encoding="utf-8").splitlines()
+
+    # Tách thành các khối, ghi nhớ số dòng bắt đầu để báo lỗi.
+    khoi, hien_tai, so_dong_bd = [], [], 1
+    for i, l in enumerate(dong, start=1):
+        if l.strip() == "":
+            if hien_tai:
+                khoi.append((so_dong_bd, hien_tai)); hien_tai = []
+        else:
+            if not hien_tai:
+                so_dong_bd = i
+            hien_tai.append(l)
+    if hien_tai:
+        khoi.append((so_dong_bd, hien_tai))
+
+    them, loi = 0, []
+    for so_dong, lines in khoi:
+        try:
+            cau = tao_cau_hoi_tu_dict(_parse_block_txt(lines))
+            bank.them_cau_hoi(cau)
+            them += 1
+        except (ValueError, KeyError) as e:
+            loi.append(f"Dòng {so_dong}: {e}")
+    return them, loi
+
+
+def export_txt(bank, duong_dan):
+    """Xuất toàn bộ ngân hàng ra file TXT theo đúng format có thể tái nhập."""
+    out = []
+    for mon in bank.subjects:
+        for cd in mon.chu_de:
+            for cau in cd.cau_hoi:
+                loai = getattr(cau, "LOAI", "single")
+                header = f"[{cau.id}] {cau.topic_id} | {cau.muc_do} | {cau.diem:g}"
+                if loai != "single":
+                    header += f" | {loai}"
+                out.append(header)
+                out.append(cau.noi_dung)
+                if loai == "fill":
+                    out.extend(f"= {o.noi_dung}" for o in cau.options if o.is_dung)
+                else:
+                    out.extend(f"{'*' if o.is_dung else '-'} {o.noi_dung}" for o in cau.options)
+                out.append("")   # dòng trống ngăn cách câu
+    path = Path(duong_dan)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(out), encoding="utf-8")
+    return path
+
+
 if __name__ == "__main__":
     # Chạy thử nhanh: đọc dữ liệu mẫu rồi báo số liệu đã nạp.
     duong_dan = Path("data/samples/question_bank_sample.json")
