@@ -58,9 +58,10 @@ De Tai So 7/
 
 ## 6. Nhóm thực hiện
 
-| Thành viên | Nhiệm vụ                                              |
-| ---------- | ----------------------------------------------------- |
-| TV1        | Model + CRUD + lưu JSON/CSV                           |
-| TV2        | Giao diện Treeview + Text + QuestionEditor            |
-| TV3        | Tạo đề (sample + seed), trộn, xuất file               |
-| TV4        | Chấm điểm, thống kê, biểu đồ Canvas, báo cáo/kiểm thử |
+| Thành viên        | Nhiệm vụ                                                     |
+| ----------------- | ------------------------------------------------------------ |
+| Lê Đạt Tuấn Kiệt  | Mô hình dữ liệu hướng đối tượng (entities)                   |
+| Nguyễn Lê Chi Bảo | CRUD, kiểm tra dữ liệu (validation), đọc/ghi JSON            |
+| Trương Hoài Bảo   | Sinh đề (sample + seed), trộn câu/phương án, xuất đề & đáp án |
+
+> Phần soạn báo cáo và kiểm thử do cả ba thành viên cùng thực hiện.
